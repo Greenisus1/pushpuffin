@@ -12,7 +12,7 @@ import subprocess
 import threading
 from urllib.parse import quote
 
-VERSION='1.0.1'
+VERSION='1.1.0'
 MAX_FILE=2*1024*1024
 MAX_TOTAL=10*1024*1024
 MAX_FILES=200
@@ -219,10 +219,13 @@ def launch(_test_hook=None):
 
 def main():
     import argparse
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--version',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--gui',action='store_true');p.add_argument('--version',action='store_true');a=p.parse_args()
     if a.version:print(VERSION);return 0
-    try:return launch()
-    except ImportError:print('Install FileFinder+ and python3-tk. A desktop display or VNC is required.');return 2
+    try:
+        if a.gui:return launch()
+        from pushpuffin_terminal import launch as terminal_launch
+        return terminal_launch()
+    except ImportError:print('Install FileFinder+ 1.1.0 first. For optional --gui install python3-tk and use desktop/VNC.');return 2
     except Exception as e:print('Cannot start Pushpuffin: '+str(e));return 2
 
 if __name__=='__main__':raise SystemExit(main())
