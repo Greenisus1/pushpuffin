@@ -42,4 +42,4 @@ def session(ui,client=None,check_dependencies=True):
      except (EOFError,KeyboardInterrupt):pass
     ui.external(perform)
   except Exception as e:ui.message(str(e))
-def launch():return run('Pushpuffin 1.1.0',session)
+def launch():return run('Pushpuffin 1.1.1',session)
