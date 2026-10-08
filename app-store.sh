@@ -25,11 +25,11 @@ check_display() {
 }
 case "${1:-}" in
  install)
-  ensure_tk
   command -v gh >/dev/null || { echo 'Install the official GitHub CLI (gh).'; exit 1; }
-  test -f "$HOME/.local/share/filefinderplus/filefinderplus.py" || { echo 'Install FileFinder+ first.'; exit 1; }
+  test -f "$HOME/.local/share/filefinderplus/terminal_browser.py" || { echo 'Install FileFinder+ first.'; exit 1; }
   python3 -c 'import pushpuffin; raise SystemExit(0 if pushpuffin.store_installed() else 1)' || { echo 'Install Pi App Store first: https://github.com/Greenisus1/pi-app-store'; exit 1; }
   ;;
- run) check_display; exec python3 pushpuffin.py ;;
- *) echo 'Usage: bash app-store.sh install|run'; exit 2 ;;
+ run) exec python3 pushpuffin.py ;;
+ gui) ensure_tk; check_display; exec python3 pushpuffin.py --gui ;;
+ *) echo 'Usage: bash app-store.sh install|run|gui'; exit 2 ;;
 esac
