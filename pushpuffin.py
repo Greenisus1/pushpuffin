@@ -8,11 +8,12 @@ from pathlib import Path, PurePosixPath
 import queue
 import re
 import shutil
+import stat
 import subprocess
 import threading
 from urllib.parse import quote
 
-VERSION='1.1.0'
+VERSION='1.1.1'
 MAX_FILE=2*1024*1024
 MAX_TOTAL=10*1024*1024
 MAX_FILES=200
@@ -61,7 +62,14 @@ def stage_files(paths,prefix=''):
         safe_name(relative)
         destination='/'.join(filter(None,[prefix,relative]))
         if destination in entries:raise ValueError('Duplicate destination: '+destination)
-        with p.open('rb') as f:data=f.read(MAX_FILE+1)
+        before=p.lstat()
+        fd=os.open(p,os.O_RDONLY|getattr(os,'O_NOFOLLOW',0)|getattr(os,'O_NONBLOCK',0))
+        with os.fdopen(fd,'rb') as f:
+            opened=os.fstat(f.fileno())
+            signature=lambda st:(st.st_dev,st.st_ino,st.st_size,st.st_mtime_ns,st.st_ctime_ns)
+            if not stat.S_ISREG(opened.st_mode) or signature(before)!=signature(opened):raise ValueError('File changed while opening. Review again: '+relative)
+            data=f.read(MAX_FILE+1);after=os.fstat(f.fileno())
+        if signature(before)!=signature(after) or signature(after)!=signature(p.lstat()):raise ValueError('File changed while reading. Review again: '+relative)
         if len(data)>MAX_FILE:raise ValueError('File exceeds 2 MiB: '+relative)
         total+=len(data)
         if total>MAX_TOTAL or len(entries)>=MAX_FILES:raise ValueError('Limit: 200 files / 10 MiB total.')
