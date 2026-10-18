@@ -13,7 +13,7 @@ import subprocess
 import threading
 from urllib.parse import quote
 
-VERSION='1.1.1'
+VERSION='1.2.0'
 MAX_FILE=2*1024*1024
 MAX_TOTAL=10*1024*1024
 MAX_FILES=200
